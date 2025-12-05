@@ -164,8 +164,8 @@ def test_05_compound_key_advanced():
     assert resp.status_code == 200
 
     # 3. Перевірка читання (Чи не перезаписались дані?)
-    read_a = requests.get(f"{COORD_URL}/tables/orders/records/{pk}_sort_key={sk_a}")
-    read_b = requests.get(f"{COORD_URL}/tables/orders/records/{pk}_sort_key={sk_b}")
+    read_a = requests.get(f"{COORD_URL}/tables/orders/records/{pk}?sort_key={sk_a}")
+    read_b = requests.get(f"{COORD_URL}/tables/orders/records/{pk}?sort_key={sk_b}")
     
     assert read_a.status_code == 200 and read_b.status_code == 200
     assert read_a.json()["desc"] == "January Order"
@@ -196,5 +196,6 @@ def test_05_compound_key_advanced():
 
     assert both_on_s1 or both_on_s2, \
         f"Sharding Logic Fail! Records for same user '{pk}' were split between shards."
+
 
 
