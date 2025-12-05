@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, Response, status
 from pydantic import BaseModel
 from uhashring import HashRing
 from typing import Optional, Dict
+from urllib.parse import quote
 
 # --- CONFIG ---
 logging.basicConfig(level=logging.INFO)
@@ -99,7 +100,8 @@ def write_record(table_name: str, record: RecordPayload):
     
     try:
         # Проксуємо запит на шард
-        resp = requests.post(f"{node_url}/storage/{real_key}", json=record.value)
+        safe_key = quote(real_key, safe="")
+        resp = requests.post(f"{node_url}/storage/{safe_key}", json=record.value)
         return resp.json()
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to contact shard {node_url}: {e}")
@@ -111,7 +113,8 @@ def read_record(table_name: str, partition_key: str, sort_key: Optional[str] = N
     node_url, real_key = _get_routing_info(partition_key, sort_key)
     
     try:
-        resp = requests.get(f"{node_url}/storage/{real_key}")
+        safe_key = quote(real_key, safe="")
+        resp = requests.get(f"{node_url}/storage/{safe_key}")
         if resp.status_code == 404:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Key not found")
         return resp.json()
@@ -124,7 +127,8 @@ def check_exists(table_name: str, partition_key: str, sort_key: Optional[str] = 
     node_url, real_key = _get_routing_info(partition_key, sort_key)
     try:
         # Використовуємо HEAD для оптимізації (не качаємо тіло)
-        resp = requests.head(f"{node_url}/storage/{real_key}")
+        safe_key = quote(real_key, safe="")
+        resp = requests.head(f"{node_url}/storage/{safe_key}")
         return Response(status_code=resp.status_code)
     except:
         return Response(status_code=status.HTTP_502_BAD_GATEWAY)
@@ -134,10 +138,12 @@ def check_exists(table_name: str, partition_key: str, sort_key: Optional[str] = 
 def delete_record(table_name: str, partition_key: str, sort_key: Optional[str] = None):
     node_url, real_key = _get_routing_info(partition_key, sort_key)
     try:
-        requests.delete(f"{node_url}/storage/{real_key}")
+        safe_key = quote(real_key, safe="")
+        requests.delete(f"{node_url}/storage/{safe_key}")
         return {"status": "deleted"}
     except:
 
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Shard is unreachable")
+
 
 
