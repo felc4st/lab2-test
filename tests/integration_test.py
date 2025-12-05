@@ -77,7 +77,7 @@ def test_03_compound_keys():
     """
     pk = "user-500"
     sk = "txn-999"
-    full_key = f"{pk}#{sk}"
+    full_key = f"{pk}?{sk}"
     
     resp = requests.post(
         f"{COORD_URL}/tables/orders/records",
@@ -196,6 +196,7 @@ def test_05_compound_key_advanced():
 
     assert both_on_s1 or both_on_s2, \
         f"Sharding Logic Fail! Records for same user '{pk}' were split between shards."
+
 
 
 
