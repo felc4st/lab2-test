@@ -55,7 +55,7 @@ def _get_routing_info(partition_key: str, sort_key: Optional[str] = None):
 
     # 2. Storage Key: Формуємо Compound Key (Partition + Sort)
     if sort_key:
-        real_key = f"{partition_key}?{sort_key}"
+        real_key = f"{partition_key}#{sort_key}"
     else:
         real_key = partition_key
         
@@ -139,4 +139,5 @@ def delete_record(table_name: str, partition_key: str, sort_key: Optional[str] =
     except:
 
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Shard is unreachable")
+
 
