@@ -57,6 +57,12 @@ resource "docker_container" "shard1" {
     "MY_ADDRESS=http://shard-1:8000"
   ]
 
+  ports {
+    internal = 8000
+    external = 8001
+  }
+
+
   networks_advanced {
     name = docker_network.lab_network.name
     aliases = ["shard-1"]
@@ -78,10 +84,17 @@ resource "docker_container" "shard2" {
     "MY_ADDRESS=http://shard-2:8000"
   ]
 
+  ports {
+    internal = 8000
+    external = 8002
+  }
+
+
   networks_advanced {
     name = docker_network.lab_network.name
     aliases = ["shard-2"]
   }
 
   depends_on = [docker_container.coordinator]
+
 }
